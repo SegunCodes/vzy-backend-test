@@ -13,11 +13,14 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // API Endpoints
+app.get('/', (req, res) => {
+  res.send('Hello, human!');
+});
 app.post('/api/register', userController.register);
 app.post('/api/login', userController.login);
 app.put('/api/update', authenticateToken, userController.updateStatus);

@@ -2,20 +2,27 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
-
-  if (!token) {
-    return res.sendStatus(400);
+  if (
+    !req.headers.authorization ||
+    !req.headers.authorization.startsWith("Bearer")
+  ) {
+    res
+      .status(401)
+      .json({
+        status: false,
+        message: "You are not authorized to access this route",
+      });
   }
 
-  jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
-
-    req.user = user;
+  const token = req.headers.authorization.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
     next();
-  });
+  } catch (error) {
+    console.error('Token verification error:', error);
+  }
+
 }
 
 module.exports = authenticateToken;
